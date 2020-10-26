@@ -50,9 +50,8 @@ how the pieces might fit together in a more realistic application.
 
 All of the sources are under `src/main`:
 
-* `html` contains the initial HTML page,
-* `js` contains the JavaScript code that updates the `Window.onLoad`
-  method and the Saxon JS 2 libraries.
+* `html` contains the initial HTML page.
+* `js` contains the JavaScript code that updates the `Window.onLoad` method.
 * `xml` contains the XML source that will be transformed.
 * `xslt` contains the XSLT *source* file. This file must be compiled.
 * `css` contains a simple CSS stylesheet that applies to the rendered page.
@@ -77,6 +76,7 @@ commands by hand if you want to.
 There are four interesting build targets:
 
 * `copyResources` copies the source files into the build directory.
+  This target will automatically download the Saxon JS release.
 * `compileXslt` compiles the source stylesheet into a SEF file.
 * `publish` runs the `copyResources` and `compileXslt` steps to
   publish a complete application.
@@ -93,7 +93,7 @@ one.
 
 ## Configuration
 
-There are three configuration properties in `gradle.properties`:
+There are four configuration properties in `gradle.properties`:
 
 * `saxonVersion` determines what version of Saxon to use. You’re
   limited to 10.2 at the moment because the Saxonica Maven repository
@@ -106,7 +106,7 @@ There are three configuration properties in `gradle.properties`:
 # Next steps
 
 Once you have it running, you can start playing around. Make changes
-to `stylesheet.xsl`, run `gradle publish` again, and see what happens!
+to the files under `src/main`, run `gradle publish` again, and see what happens!
 
 # Random observations
 

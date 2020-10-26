@@ -1,0 +1,153 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+      url "https://dev.saxonica.com/maven"
+    }
+  }
+
+  dependencies {
+    classpath group: "com.saxonica", name: "Saxon-EE", version: saxonVersion
+  }
+}
+
+plugins {
+  id "java"
+  id "de.undercouch.download" version "4.0.4"
+}
+
+import de.undercouch.gradle.tasks.download.Download
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven {
+    url "https://dev.saxonica.com/maven"
+  }
+}
+
+configurations.all {
+  resolutionStrategy {
+    force 'xml-apis:xml-apis:1.4.01'
+  }
+}
+
+configurations {
+  saxon.extendsFrom(implementation)
+}
+
+// TODO: Configure build so that it can use the Saxon-JS 2 compiler.
+
+// You can set saxonLicenseDir in gradle.properties, or from
+// the command line if you have a license in some other place.
+if (!hasProperty("saxonLicenseDir")) {
+  ext.saxonLicenseDir=System.getenv('HOME') + "/java"
+}
+
+dependencies {
+  implementation (
+    [group: "com.saxonica", name: "Saxon-EE", version: saxonVersion]
+  )
+  saxon (
+    files(saxonLicenseDir)
+  )
+}
+
+defaultTasks 'publish'
+
+task server(type: Exec, dependsOn: ["publish"]) {
+  commandLine "python3",
+    "-m", "http.server",
+    "--directory", "${buildDir}/website",
+    serverPort
+  doFirst {
+    println("Starting web server; open http://localhost:${serverPort}/ in your browser")
+  }
+}
+
+task publish(dependsOn: ["copyResources", "compileXslt"]) {
+  doLast {
+    println("Pages published in ${buildDir}")
+  }
+}
+
+task copyResources() {
+  // Just somewhere to hang dependencies
+}
+
+["html", "css", "js", "xml"].each { subdir ->
+  def target = "${buildDir}/website/${subdir}"
+  if (subdir == "html") {
+    // html is special
+    target = "${buildDir}/website"
+  }
+  Task t = task "copy_${subdir}"(type: Copy) {
+    from "${projectDir}/src/main/${subdir}"
+    into target
+    doFirst {
+      mkdir "${buildDir}/website"
+    }
+  }
+  copyResources.dependsOn t
+}
+
+if (file(saxonLicenseDir + "/saxon-license.lic").exists()) {
+  // We can compile the stylesheet
+  task doCompileXslt(type: JavaExec) {
+    inputs.file "${projectDir}/src/main/xslt/stylesheet.xsl"
+    outputs.file "${buildDir}/website/xslt/stylesheet.sef.json"
+    classpath = configurations.saxon
+    main = "com.saxonica.Transform"
+    args "-t",
+      "-xsl:${projectDir}/src/main/xslt/stylesheet.xsl",
+      "-export:${buildDir}/website/xslt/stylesheet.sef.json",
+      "-target:JS", "-nogo", "-relocate:on", "-ns:##html5"
+    doFirst {
+      mkdir "${buildDir}/website/xslt"
+    }
+  }
+  // Keep the precompiled version up-to-date
+  task compileXslt(type: Copy, dependsOn: ["doCompileXslt"]) {
+    from "${buildDir}/website/xslt"
+    into "${projectDir}/precompiled"
+  }
+} else {
+  task compileXslt(type: Copy) {
+    from "${projectDir}/precompiled"
+    into "${buildDir}/website/xslt"
+    doFirst {
+      mkdir "${buildDir}/website/xslt"
+    }
+    doLast {
+      println("**************************************************************************")
+      println("* Using pre-compiled stylesheets; ignoring any changes to stylesheet.xsl *")
+      println("**************************************************************************")
+    }
+  }
+}
+
+// ============================================================ 
+// Download Saxon JS if necessary
+
+task downloadSaxonJs(type: Download) {
+  src "https://www.saxonica.com/saxon-js/download/Saxon-JS-${saxonJsVersion}.zip"
+  dest "${buildDir}"
+  doFirst {
+    mkdir(buildDir)
+  }
+}
+downloadSaxonJs.onlyIf {
+  !file("${buildDir}/Saxon-JS-${saxonJsVersion}.zip").exists()
+}
+
+task copySaxonJs(type: Copy, dependsOn: ["downloadSaxonJs"]) {
+  def zipFile = file("${buildDir}/Saxon-JS-${saxonJsVersion}.zip")
+  from zipTree(zipFile)
+  into "${buildDir}/website/js"
+  include "**/*.js"
+  doFirst {
+    mkdir "${buildDir}/website"
+  }
+}
+copyResources.dependsOn copySaxonJs
