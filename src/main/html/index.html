@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <link rel="stylesheet" href="css/style.css" />
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
   <script type="text/javascript" src="js/SaxonJS2.rt.js"></script>
   <script type="text/javascript" src="js/start.js"></script>
 </head>
@@ -13,8 +14,8 @@
     <p>Loading…</p>
   </div>
 </body>
-<script type="application/xml" id="payload">
-<doc xmlns="">
+<script type="application/xml" id="xmlPayload">
+<doc>
 <title>Hello, World</title>
 <para>This is my first Saxon JS experiment, modified to embed the
 initial payload in the initial HTML page. This avoids an immediate
@@ -24,5 +25,13 @@ the script has to be parsed into XML. Whether that’s better than
 retrieving it from the server might depend on the size and complexity
 of the document.</para>
 </doc>
+</script>
+<script type="text/markdown" id="payload">
+# Hello, World
+
+This is my first Saxon JS experiment, modified to embed the
+payload in the initial HTML page as CommonMark.
+
+This demonstrates calling a global JavaScript function from the stylesheet.
 </script>
 </html>

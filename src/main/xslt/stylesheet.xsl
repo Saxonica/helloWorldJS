@@ -16,7 +16,18 @@
 <xsl:template name="xsl:initial-template">
   <xsl:variable name="payload" select="ixsl:page()//h:script[@id='payload']"/>
   <xsl:result-document href="#hello" method="ixsl:replace-content">
-    <xsl:apply-templates select="parse-xml($payload)/*"/>
+    <xsl:choose>
+      <xsl:when test="$payload/@type = 'text/markdown'">
+        <xsl:variable name="converted"
+                      select="js:saxonTransformMarkdown(string($payload))"/>
+        <xsl:variable name="html"
+                      select="'&lt;doc>' || $converted || '&lt;/doc>'"/>
+        <xsl:apply-templates select="parse-xml($html)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="parse-xml($payload)/*"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:result-document>
 </xsl:template>
 
