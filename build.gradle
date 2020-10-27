@@ -37,10 +37,8 @@ configurations {
   saxon.extendsFrom(implementation)
 }
 
-// TODO: Configure build so that it can use the Saxon-JS 2 compiler.
-
-// You can set saxonLicenseDir in gradle.properties, or from
-// the command line if you have a license in some other place.
+// Set saxonLicenseDir in gradle.properties, or from the
+// command line if you have a license in some other place.
 if (!hasProperty("saxonLicenseDir")) {
   ext.saxonLicenseDir=System.getenv('HOME') + "/java"
 }
@@ -56,8 +54,12 @@ dependencies {
 
 defaultTasks 'publish'
 
+// This task runs a simple Python web server. It requires that you
+// have python installed. If you don't want to use this server, you
+// can use any web server that you want, just configure it to serve
+// the files in build/website.
 task server(type: Exec, dependsOn: ["publish"]) {
-  commandLine "python3",
+  commandLine "${pythonExecutable}",
     "-m", "http.server",
     "--directory", "${buildDir}/website",
     serverPort
@@ -92,39 +94,87 @@ task copyResources() {
   copyResources.dependsOn t
 }
 
-if (file(saxonLicenseDir + "/saxon-license.lic").exists()) {
-  // We can compile the stylesheet
-  task doCompileXslt(type: JavaExec) {
+if (xsltCompiler == "XX") {
+  task createPackageJson() {
+    doLast {
+      new File("package.json")
+        .withWriter("utf-8") { writer ->
+          writer.writeLine("{")
+          writer.writeLine("  \"name\": \"${helloWorldName}\",")
+          writer.writeLine("  \"version\": \"${helloWorldVersion}\"")
+          writer.writeLine("}")
+        }
+    }
+  }
+  createPackageJson.onlyIf {
+    !file("package.json").exists()
+  }
+
+  task installXslt3(type: Exec, dependsOn: ["createPackageJson"]) {
+    commandLine "npm", "install", "xslt3"
+  }
+  installXslt3.onlyIf {
+    !file("node_modules/xslt3/xslt3.js").exists()
+  }
+
+  task compileXslt(type: Exec, dependsOn: ["installXslt3"]) {
     inputs.file "${projectDir}/src/main/xslt/stylesheet.xsl"
     outputs.file "${buildDir}/website/xslt/stylesheet.sef.json"
-    classpath = configurations.saxon
-    main = "com.saxonica.Transform"
-    args "-t",
-      "-xsl:${projectDir}/src/main/xslt/stylesheet.xsl",
+    commandLine "node", "node_modules/xslt3/xslt3.js",
+      "-t", "-xsl:${projectDir}/src/main/xslt/stylesheet.xsl",
       "-export:${buildDir}/website/xslt/stylesheet.sef.json",
-      "-target:JS", "-nogo", "-relocate:on", "-ns:##html5"
+      "-nogo", "-ns:##html5"
     doFirst {
       mkdir "${buildDir}/website/xslt"
     }
   }
-  // Keep the precompiled version up-to-date
-  task compileXslt(type: Copy, dependsOn: ["doCompileXslt"]) {
-    from "${buildDir}/website/xslt"
-    into "${projectDir}/precompiled"
+
+  task cleanupNode() {
+    doLast {
+      delete "package.json"
+      delete "package-lock.json"
+      delete "node_modules"
+    }
+  }
+  clean.dependsOn cleanupNode
+
+} else if (xsltCompiler == "XJ") {
+  if (file(saxonLicenseDir + "/saxon-license.lic").exists()) {
+    // We can compile the stylesheet
+    task doCompileXslt(type: JavaExec) {
+      inputs.file "${projectDir}/src/main/xslt/stylesheet.xsl"
+      outputs.file "${buildDir}/website/xslt/stylesheet.sef.json"
+      classpath = configurations.saxon
+      main = "com.saxonica.Transform"
+      args "-t",
+        "-xsl:${projectDir}/src/main/xslt/stylesheet.xsl",
+        "-export:${buildDir}/website/xslt/stylesheet.sef.json",
+        "-target:JS", "-nogo", "-relocate:on", "-ns:##html5"
+      doFirst {
+        mkdir "${buildDir}/website/xslt"
+      }
+    }
+    // Keep the precompiled version up-to-date
+    task compileXslt(type: Copy, dependsOn: ["doCompileXslt"]) {
+      from "${buildDir}/website/xslt"
+      into "${projectDir}/precompiled"
+    }
+  } else {
+    task compileXslt(type: Copy) {
+      from "${projectDir}/precompiled"
+      into "${buildDir}/website/xslt"
+      doFirst {
+        mkdir "${buildDir}/website/xslt"
+      }
+      doLast {
+        println("**************************************************************************")
+        println("* Using pre-compiled stylesheets; ignoring any changes to stylesheet.xsl *")
+        println("**************************************************************************")
+      }
+    }
   }
 } else {
-  task compileXslt(type: Copy) {
-    from "${projectDir}/precompiled"
-    into "${buildDir}/website/xslt"
-    doFirst {
-      mkdir "${buildDir}/website/xslt"
-    }
-    doLast {
-      println("**************************************************************************")
-      println("* Using pre-compiled stylesheets; ignoring any changes to stylesheet.xsl *")
-      println("**************************************************************************")
-    }
-  }
+  throw new GradleException("The xsltCompiler option must be 'XJ' or 'XX'.")
 }
 
 // ============================================================ 
