@@ -23,22 +23,24 @@ The initial HTML page contains a single `div` that displays the text
 `Window.onLoad` callback is changed so that it calls a XSLT
 transformation using Saxon JS.
 
-That stylesheet transforms a simple “Hello, World” XML document:
+That stylesheet transforms a simple “Hello, World” CommonMark document:
 
 ```
-<doc>
-<title>Hello, World</title>
-<para>This is my first Saxon JS experiment.</para>
-</doc>
+# Hello, World
+
+This is my first Saxon JS experiment, modified to embed the
+payload in the initial HTML page as CommonMark.
+
+This demonstrates calling a global JavaScript function from the stylesheet.
 ```
 
 into XHTML and updates the web page (this replaces the loading message).
 
 > In this version of the project, the initial “hello world” document is
-> embedded in the HTML page with a `script` element. On the one hand,
-> this avoids another HTTP request to the server to retrieve the XML. On
-> the other hand, the script content is represented as unparsed text so
-> the stylesheet has to parse it.
+> embedded in the HTML page as Markdown and an external JavaScript
+> tool is used to convert Markdown to HTML which is then transformed by the
+> stylesheet. The aim here was to demonstrate calling a JavaScript function
+> from the stylesheet.
 
 The stylesheet also adds a button to the page and creates an
 `ixsl:onclick` template that responds when that button is pressed.
