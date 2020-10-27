@@ -1,4 +1,4 @@
-# Hello World in Saxon JS 2
+# Hello World in Saxon JS 2 (use script version)
 
 This project contains (almost) the simplest possible “hello world”
 example using Saxon JS 2.
@@ -34,6 +34,12 @@ That stylesheet transforms a simple “Hello, World” XML document:
 
 into XHTML and updates the web page (this replaces the loading message).
 
+> In this version of the project, the initial “hello world” document is
+> embedded in the HTML page with a `script` element. On the one hand,
+> this avoids another HTTP request to the server to retrieve the XML. On
+> the other hand, the script content is represented as unparsed text so
+> the stylesheet has to parse it.
+
 The stylesheet also adds a button to the page and creates an
 `ixsl:onclick` template that responds when that button is pressed.
 Clicking on the button causes another XSLT template to fire which
@@ -52,7 +58,6 @@ All of the sources are under `src/main`:
 
 * `html` contains the initial HTML page.
 * `js` contains the JavaScript code that updates the `Window.onLoad` method.
-* `xml` contains the XML source that will be transformed.
 * `xslt` contains the XSLT *source* file. This file must be compiled.
 * `css` contains a simple CSS stylesheet that applies to the rendered page.
 
@@ -108,14 +113,7 @@ There are four configuration properties in `gradle.properties`:
 Once you have it running, you can start playing around. Make changes
 to the files under `src/main`, run `gradle publish` again, and see what happens!
 
-# Random observations
+# Random observation
 
-1. When Saxon JS adds elements to an HTML page, if they aren’t in a
-   namespace, it automatically puts them in the HTML namespace. That’s handy.
-2. The browser caches things and sometimes that means “reload” doesn’t
-   do what you want. Using the “pointless query string” trick can
-   help. For example, I sometimes write `sourceLocation:
-   "xml/home.xml?x=2"` in my call to the transform function from
-   JavaScript. If the browser caches that in a way that I find
-   annoying, I change the URI to `x=3`. That makes it different from
-   the browsers perspective but doesn’t change the results.
+When Saxon JS adds elements to an HTML page, if they aren’t in a
+namespace, it automatically puts them in the HTML namespace. That’s handy.
