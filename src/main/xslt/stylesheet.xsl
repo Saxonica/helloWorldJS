@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
  	        xmlns:ixsl="http://saxonica.com/ns/interactiveXSLT"
+                xmlns:h="http://www.w3.org/1999/xhtml"
                 xmlns:js="http://saxonica.com/ns/globalJS"
                 xmlns:saxon="http://saxon.sf.net/"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns="http://www.w3.org/1999/xhtml"
-                exclude-result-prefixes="ixsl js saxon xs"
+                exclude-result-prefixes="h ixsl js saxon xs"
                 version="3.0">
 
 <!-- add map and array -->
 
 <xsl:output method="html" html-version="5" encoding="utf-8" indent="no"/>
 
-<xsl:template match="/">
+<xsl:template name="xsl:initial-template">
+  <xsl:variable name="payload" select="ixsl:page()//h:script[@id='payload']"/>
   <xsl:result-document href="#hello" method="ixsl:replace-content">
-    <xsl:apply-templates/>
+    <xsl:apply-templates select="parse-xml($payload)/*"/>
   </xsl:result-document>
 </xsl:template>
 

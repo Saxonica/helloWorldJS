@@ -1,5 +1,13 @@
 /* Simple CSS */
 
+html {
+    font-size: 16pt;
+    max-width: 50em;
+    line-height: 1.5;
+}
+
 button {
+    font-size: 16pt;
+    border-radius: 4px;
     cursor: pointer;
 }

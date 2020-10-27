@@ -13,4 +13,16 @@
     <p>Loading…</p>
   </div>
 </body>
+<script type="application/xml" id="payload">
+<doc xmlns="">
+<title>Hello, World</title>
+<para>This is my first Saxon JS experiment, modified to embed the
+initial payload in the initial HTML page. This avoids an immediate
+round-trip to the server to get the payload.</para>
+<para>On the other hand, the content is “unparsed” in the script element, so
+the script has to be parsed into XML. Whether that’s better than
+retrieving it from the server might depend on the size and complexity
+of the document.</para>
+</doc>
+</script>
 </html>
