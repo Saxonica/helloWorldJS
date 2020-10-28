@@ -69,9 +69,6 @@
 </xsl:template>
 
 <xsl:template mode="ixsl:onclick" match="button[@id='scroll']">
-  <xsl:result-document href="#foo">
-    <span>new</span>
-  </xsl:result-document>
   <xsl:apply-templates select="id('seeme')" mode="scroll"/>
 </xsl:template>
 
