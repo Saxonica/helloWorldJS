@@ -68,4 +68,18 @@
   </xsl:result-document>
 </xsl:template>
 
+<xsl:template mode="ixsl:onclick" match="button[@id='scroll']">
+  <xsl:result-document href="#foo">
+    <span>new</span>
+  </xsl:result-document>
+  <xsl:apply-templates select="id('seeme')" mode="scroll"/>
+</xsl:template>
+
+<xsl:template match="*" mode="scroll">
+  <xsl:sequence select="ixsl:call(., 'scrollIntoView',
+                        array { map { 'behavior': 'smooth',
+                                      'block': 'start',
+                                      'inline': 'nearest' } })"/>
+</xsl:template>
+
 </xsl:stylesheet>
