@@ -22,9 +22,12 @@
   <main>
     <xsl:apply-templates/>
     <div id="button">
-      <button id="pushme" type="button">Push me</button>
+      <sl-button>Click me</sl-button>
     </div>
   </main>
+
+  <xsl:variable name="intro" select="ixsl:page()/id('intro')"/>
+  <ixsl:set-style name="display" select="'block'" object="$intro"/>
 </xsl:template>
 
 <xsl:template match="title">
@@ -51,7 +54,7 @@
 
 <!-- ============================================================ -->
 
-<xsl:template mode="ixsl:onclick" match="button[@id='pushme']">
+<xsl:template mode="ixsl:onclick" match="sl-button">
   <xsl:variable name="count" select="count(id('button')//p)"/>
   <xsl:result-document href="#button">
     <xsl:choose>

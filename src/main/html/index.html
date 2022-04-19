@@ -7,10 +7,26 @@
   <link rel="stylesheet" href="css/style.css" />
   <script type="text/javascript" src="js/saxon-js/SaxonJS2.rt.js"></script>
   <script type="text/javascript" src="js/start.js"></script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/themes/light.css" />
+  <script type="module"
+          src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace.js"></script>
+  <style>
+    #intro { display: none; margin-top: 1em; }
+  </style>
 </head>
 <body>
   <div id="hello">
     <p>Loading…</p>
+  </div>
+  <div id="intro">
+    <hr />
+    <p>This button is created and styled with the
+    <a href="https://shoelace.style/">Shoelace</a> web component:</p>
+    <pre><code>&lt;sl-button>Click me&lt;/sl-button></code></pre>
+    <p>There’s nothing remarkable
+    about it, I was only interested in demonstrating SaxonJS styling
+    web components.</p>
   </div>
 </body>
 </html>
