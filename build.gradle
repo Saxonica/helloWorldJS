@@ -117,7 +117,7 @@ if (xsltCompiler == "XX") {
     !file("node_modules/xslt3/xslt3.js").exists()
   }
 
-  task compileXslt(type: Exec, dependsOn: ["installXslt3"]) {
+  task compileXslt(type: Exec, dependsOn: ["installXslt3", "copy_html"]) {
     inputs.file "${projectDir}/src/main/xslt/stylesheet.xsl"
     outputs.file "${buildDir}/website/xslt/stylesheet.sef.json"
     commandLine "node", "node_modules/xslt3/xslt3.js",
@@ -145,7 +145,7 @@ if (xsltCompiler == "XX") {
       inputs.file "${projectDir}/src/main/xslt/stylesheet.xsl"
       outputs.file "${buildDir}/website/xslt/stylesheet.sef.json"
       classpath = configurations.saxon
-      main = "com.saxonica.Transform"
+      mainClass = "com.saxonica.Transform"
       args "-t",
         "-xsl:${projectDir}/src/main/xslt/stylesheet.xsl",
         "-export:${buildDir}/website/xslt/stylesheet.sef.json",
@@ -155,7 +155,7 @@ if (xsltCompiler == "XX") {
       }
     }
     // Keep the precompiled version up-to-date
-    task compileXslt(type: Copy, dependsOn: ["doCompileXslt"]) {
+    task compileXslt(type: Copy, dependsOn: ["doCompileXslt", "copy_html"]) {
       from "${buildDir}/website/xslt"
       into "${projectDir}/precompiled"
     }
